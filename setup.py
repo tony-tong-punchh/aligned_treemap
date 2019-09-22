@@ -9,6 +9,7 @@ setup(
     author="Tony Tong, Uri Laserson",
     author_email="ttong@pro-ai.org",
     description="Pure Python implementation of treemap, aligned_treemap, and squarify",
+    long_description="Pure Python implementation of treemap, aligned_treemap, and squarify",
     license="Apache v2",
     keywords="one-level treemap visualization layout graphics with ordered alignment along x and y axes",
     classifiers=[
