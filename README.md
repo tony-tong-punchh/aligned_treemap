@@ -89,10 +89,8 @@ The direct output is a list of dictionaries with each element defining a rectang
 ]
 ```
 
-Similarly, to call the standard weight balanced treemap construction:
+Similarly, to call the standard weight balanced treemap constructor:
 ```
-from aligned_treemap import treemap
-
 treemap.treemap(data.population, x=0, y=0, dx=100, dy=100, labels=data.tier)
 ```
 
@@ -128,6 +126,12 @@ Output:
 ]
 ```
 
+Similary, to call the original squarify treemap constructor:
+```
+treemap.squarify(data.population, x=0, y=0, dx=100, dy=100, labels=data.tier)
+```
+
+To use the embedded plot function that uses `matplotlib` simply do the following:
 ```
 fig, ax = plt.subplots(figsize=(18, 16))
 treemap.plot(data.population, kind='aligned_treemap', norm_x=100, norm_y=100, \
