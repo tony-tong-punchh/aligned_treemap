@@ -1,19 +1,21 @@
 from setuptools import setup
+from aligned_treemap import __version__
+
 
 setup(
-    name="squarify",
-    version="0.4.3",
-    packages=["squarify"],
-    author="Uri Laserson",
-    author_email="uri.laserson@gmail.com",
-    description="Pure Python implementation of the squarify treemap layout algorithm",
+    name="aligned_treemap",
+    version=__version__,
+    packages=["aligned_treemap"],
+    author="Tony Tong, Uri Laserson",
+    author_email="ttong@pro-ai.org",
+    description="Pure Python implementation of treemap, aligned_treemap, and squarify",
     license="Apache v2",
-    keywords="treemap visualization squarify layout graphics",
+    keywords="one-level treemap visualization layout graphics with ordered alignment along x and y axes",
     classifiers=[
-        "Programming Language :: Python :: 2.6",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ],
-    url="https://github.com/laserson/squarify",
+    requires=['numpy'],
+    url="https://github.com/tony-tong-punchh/aligned_treemap",
 )
