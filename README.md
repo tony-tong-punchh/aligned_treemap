@@ -43,7 +43,7 @@ Usage
 First, prepare the data.  Here assume the source data is in a pandas dataframe.
 ![alt text](tabulated_data.png "Sample Data with Customer RFM Segmentation")
 
-```python
+```
 from aligned_treemap import treemap
 
 sizes = data.population
@@ -51,14 +51,14 @@ x_align = data.frequency
 y_align = data.monetary
 ```
 
-```python
+```
 from aligned_treemap import treemap
 
 treemap.aligned_treemap(data.population, x_align=x_align, y_align=y_align, x=0, y=0, dx=100, dy=100, labels=data.tier)
 ```
 
 The direct output is a list of dictionaries with each element defining a rectangular box. 
-```json
+```
 [
     {
         "x": 0,
@@ -90,14 +90,14 @@ The direct output is a list of dictionaries with each element defining a rectang
 ```
 
 Similarly, to call the standard weight balanced treemap construction:
-```python
+```
 from aligned_treemap import treemap
 
 treemap.treemap(data.population, x=0, y=0, dx=100, dy=100, labels=data.tier)
 ```
 
 Output:
-```json
+```
 [
     {
         "x": 0,
@@ -128,7 +128,7 @@ Output:
 ]
 ```
 
-```python
+```
 fig, ax = plt.subplots(figsize=(18, 16))
 treemap.plot(data.population, kind='aligned_treemap', norm_x=100, norm_y=100, \
     x_align=x_align, y_align=y_align, labels=data.tier, pad=False, alpha=0.7, ax=ax)
