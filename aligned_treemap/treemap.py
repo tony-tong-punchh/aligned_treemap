@@ -127,7 +127,7 @@ def worst_ratio(sizes, x, y, dx, dy):
 
 
 # Public API's
-def squarify(sizes, x, y, dx, dy, labels, values):
+def squarify(sizes, x, y, dx, dy, labels, values=None, normalized=False):
     """Compute treemap rectangles.
 
     Given a set of values, computes a treemap layout in the specified geometry
@@ -138,8 +138,7 @@ def squarify(sizes, x, y, dx, dy, labels, values):
     ----------
     sizes : list-like of numeric values
         The set of values to compute a treemap for. `sizes` must be positive
-        values sorted in descending order and they should be normalized to the
-        total area (i.e., `dx * dy == sum(sizes)`)
+        values sorted in descending order.
     x, y : numeric
         The coordinates of the "origin".
     dx, dy : numeric
@@ -148,6 +147,8 @@ def squarify(sizes, x, y, dx, dy, labels, values):
         Text labels corresponding to sizes
     values: list-like of values
         Numerical values corresponding to sizes
+    normalized: True or False (default)
+        True if `dx * dy == sum(sizes)`
 
     Returns
     -------
@@ -156,6 +157,11 @@ def squarify(sizes, x, y, dx, dy, labels, values):
         treemap. The order corresponds to the input order.
     """
     sizes = list(map(float, sizes))
+    if values is None:
+        values = sizes
+    if not normalized:
+        sizes = np.array(normalize_sizes(sizes, dx, dy))
+
     labels = list(labels)
     values = list(values)
 
@@ -174,7 +180,7 @@ def squarify(sizes, x, y, dx, dy, labels, values):
 
     (leftover_x, leftover_y, leftover_dx, leftover_dy) = leftover(current, x, y, dx, dy)
     return layout(current, x, y, dx, dy, current_labels, current_values) + squarify(
-        remaining, leftover_x, leftover_y, leftover_dx, leftover_dy, remaining_labels, remaining_values
+        remaining, leftover_x, leftover_y, leftover_dx, leftover_dy, remaining_labels, remaining_values, True
     )
 
 
@@ -285,11 +291,11 @@ def treemap(sizes, x, y, dx, dy, labels, values=None, normalized=False):
         treemap. The order corresponds to the input order.
     """
     sizes = list(map(float, sizes))
+    if values is None:
+        values = sizes
     if not normalized:
         sizes = np.array(normalize_sizes(sizes, dx, dy))
     labels = list(labels)
-    if values is None:
-        values = sizes
     values = list(values)
 
     if len(sizes) == 0:
@@ -339,13 +345,13 @@ def aligned_treemap(sizes, x_align, y_align, x, y, dx, dy, labels, values=None, 
         treemap. The order corresponds to the input order.
     """
     sizes = np.array(list(map(float, sizes)))
+    if values is None:
+        values = sizes
     if not normalized:
         sizes = np.array(normalize_sizes(sizes, dx, dy))
     x_align = np.array(list(map(float, x_align)))
     y_align = np.array(list(map(float, y_align)))
     labels = np.array(list(labels))
-    if values is None:
-        values = sizes
     values = np.array(list(values))
 
     if len(sizes) == 0:
