@@ -257,7 +257,7 @@ def split(head, x, y, dx, dy):
         return (x, y, dx, height), (x, y + height, dx, dy - height)
 
 
-def treemap(sizes, x, y, dx, dy, labels, values):
+def treemap(sizes, x, y, dx, dy, labels, values=None, normalized=False):
     """Compute treemap rectangles with min weight imbalances for each split.
 
     The difference to squarify algorithm is that this treemap generator does
@@ -266,9 +266,7 @@ def treemap(sizes, x, y, dx, dy, labels, values):
     Parameters
     ----------
     sizes : list-like of numeric values
-        The set of values to compute a treemap for. `sizes` must be positive
-        values sorted in descending order and they should be normalized to the
-        total area (i.e., `dx * dy == sum(sizes)`)
+        The set of values to compute a treemap for. `sizes` must be positive.
     x, y : list-like of numeric values
         The set of values are used to align the relative locations of each rectangle.
     dx, dy : numeric
@@ -277,6 +275,8 @@ def treemap(sizes, x, y, dx, dy, labels, values):
         Text labels corresponding to sizes
     values: list-like of values
         Numerical values corresponding to sizes
+    normalized: True or False (default)
+        True if sizes already normalized such as sum(sizes) == dx * dy
 
     Returns
     -------
@@ -285,7 +285,11 @@ def treemap(sizes, x, y, dx, dy, labels, values):
         treemap. The order corresponds to the input order.
     """
     sizes = list(map(float, sizes))
+    if not normalized:
+        sizes = np.array(normalize_sizes(sizes, dx, dy))
     labels = list(labels)
+    if values is None:
+        values = sizes
     values = list(values)
 
     if len(sizes) == 0:
@@ -299,10 +303,12 @@ def treemap(sizes, x, y, dx, dy, labels, values):
     tail, tail_labels, tail_values = sizes[i:], labels[i:], values[i:]
 
     head_rect, tail_rect = split(head, x, y, dx, dy)
-    return treemap(head, *head_rect, head_labels, head_values) + treemap(tail, *tail_rect, tail_labels, tail_values)
+    return treemap(head, *head_rect, head_labels, head_values, True) + treemap(
+        tail, *tail_rect, tail_labels, tail_values, True
+    )
 
 
-def aligned_treemap(sizes, x_align, y_align, x, y, dx, dy, labels, values):
+def aligned_treemap(sizes, x_align, y_align, x, y, dx, dy, labels, values=None, normalized=False):
     """Compute treemap rectangles while aligning to x and y axes values.
 
     The key difference of aligned_treemap from treemap is that additional
@@ -312,9 +318,7 @@ def aligned_treemap(sizes, x_align, y_align, x, y, dx, dy, labels, values):
     Parameters
     ----------
     sizes : list-like of numeric values
-        The set of values to compute a treemap for. `sizes` must be positive
-        values sorted in descending order and they should be normalized to the
-        total area (i.e., `dx * dy == sum(sizes)`)
+        The set of values to compute a treemap for. `sizes` must be positive values.
     x_align, y_align
         list-like values for x-dim and y-dim used for aligning the blocks
     x, y : list-like of numeric values
@@ -325,6 +329,8 @@ def aligned_treemap(sizes, x_align, y_align, x, y, dx, dy, labels, values):
         Text labels corresponding to sizes
     values: list-like of values
         Numerical values corresponding to sizes
+    normalized: True or False (default)
+        True if sizes already normalized such as sum(sizes) == dx * dy
 
     Returns
     -------
@@ -332,17 +338,21 @@ def aligned_treemap(sizes, x_align, y_align, x, y, dx, dy, labels, values):
         Each dict in the returned list represents a single rectangle in the
         treemap. The order corresponds to the input order.
     """
+    sizes = np.array(list(map(float, sizes)))
+    if not normalized:
+        sizes = np.array(normalize_sizes(sizes, dx, dy))
+    x_align = np.array(list(map(float, x_align)))
+    y_align = np.array(list(map(float, y_align)))
+    labels = np.array(list(labels))
+    if values is None:
+        values = sizes
+    values = np.array(list(values))
+
     if len(sizes) == 0:
         return []
 
     if len(sizes) == 1:
         return layout(sizes, x, y, dx, dy, labels, values)
-
-    sizes = np.array(list(map(float, sizes)))
-    x_align = np.array(list(map(float, x_align)))
-    y_align = np.array(list(map(float, y_align)))
-    labels = np.array(list(labels))
-    values = np.array(list(values))
 
     idx = np.argsort(x_align) if dx >= dy else np.argsort(y_align)
     sizes = sizes[idx]
@@ -369,9 +379,9 @@ def aligned_treemap(sizes, x_align, y_align, x, y, dx, dy, labels, values):
 
     head_rect, tail_rect = split(head, x, y, dx, dy)
 
-    return aligned_treemap(head, head_x_align, head_y_align, *head_rect, head_labels, head_values) + aligned_treemap(
-        tail, tail_x_align, tail_y_align, *tail_rect, tail_labels, tail_values
-    )
+    return aligned_treemap(
+        head, head_x_align, head_y_align, *head_rect, head_labels, head_values, True
+    ) + aligned_treemap(tail, tail_x_align, tail_y_align, *tail_rect, tail_labels, tail_values, True)
 
 
 def plot(
