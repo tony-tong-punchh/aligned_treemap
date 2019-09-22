@@ -2,8 +2,10 @@ aligned_treemap
 ========
 
 Pure Python implementation of the squarify treemap layout algorithm.
-----
-Weight Balanced Treemap Layout
+
+version: 1.0.0
+
+####Weight Balanced Treemap Layout
 
 by Tony Tong, tony.tong@punchh.com
 
@@ -11,7 +13,7 @@ Implements a regular one-level treemap generation algorithm by finding optimal
 split that minimizes the weight (size) imbalances between two sub-groups.
 
 
-Aligned Treemap Layout
+####Aligned Treemap Layout
     
 by Tony Tong, tony.tong@punchh.com
 
@@ -22,7 +24,7 @@ as they can each be sorted it should work.  If you need to reverse the alignment
 simply multiply the alignment values by -1.
 
 
-Squarified Treemap Layout
+#####Squarified Treemap Layout
 
 by Uri Laserson, uri.laserson@gmail.com
 
