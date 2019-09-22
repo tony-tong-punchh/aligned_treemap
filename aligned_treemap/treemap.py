@@ -250,11 +250,9 @@ def split(head, x, y, dx, dy):
     """
     covered_area = sum(head)
     if dx >= dy:
-        print("Split along x")
         width = covered_area / dy
         return (x, y, width, dy), (x + width, y, dx - width, dy)
     else:
-        print("Split along y")
         height = covered_area / dx
         return (x, y, dx, height), (x, y + height, dx, dy - height)
 
@@ -334,7 +332,6 @@ def aligned_treemap(sizes, x_align, y_align, x, y, dx, dy, labels, values):
         Each dict in the returned list represents a single rectangle in the
         treemap. The order corresponds to the input order.
     """
-    print("Size of sizes: ", len(sizes))
     if len(sizes) == 0:
         return []
 
@@ -353,12 +350,6 @@ def aligned_treemap(sizes, x_align, y_align, x, y, dx, dy, labels, values):
     y_align = y_align[idx]
     labels = labels[idx]
     values = values[idx]
-    print(idx)
-    print(sizes)
-    print(x_align)
-    print(y_align)
-    print(labels)
-    print(values)
 
     i = argmin_weight_imbalance(sizes)
     head, head_x_align, head_y_align, head_labels, head_values = (
@@ -375,8 +366,6 @@ def aligned_treemap(sizes, x_align, y_align, x, y, dx, dy, labels, values):
         labels[i:],
         values[i:],
     )
-    print("Size of head: ", len(head))
-    print("Size of tail: ", len(tail))
 
     head_rect, tail_rect = split(head, x, y, dx, dy)
 
@@ -477,8 +466,6 @@ def plot(
     dy = [rect["dy"] for rect in rects]
     labels = [rect["label"] for rect in rects]
     values = [rect["value"] for rect in rects]
-    print(labels)
-    print(values)
 
     ax.bar(x, dy, width=dx, bottom=y, color=color, label=labels, align="edge", **bar_kwargs)
 
