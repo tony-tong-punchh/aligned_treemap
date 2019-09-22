@@ -445,6 +445,9 @@ def plot(
     if len(kwargs) > 0:
         bar_kwargs.update(kwargs)
 
+    if values is None:
+        values = sizes.copy()
+
     normed = normalize_sizes(sizes, norm_x, norm_y)
 
     if kind == "squarify":
