@@ -48,15 +48,21 @@ First, prepare the data.  Here assume the source data is in a pandas dataframe.
 ```
 from aligned_treemap import treemap
 
-sizes = data.population
-x_align = data.frequency
-y_align = data.monetary
-```
+# sizes = data.population
+# labels = data.tier
+# x_align = data.frequency
+# y_align = data.monetary
 
-```
-from aligned_treemap import treemap
-
-treemap.aligned_treemap(data.population, x_align=x_align, y_align=y_align, x=0, y=0, dx=100, dy=100, labels=data.tier)
+treemap.aligned_treemap(
+    sizes=data.population, 
+    x_align=data.frequency, 
+    y_align=data.monetary, 
+    x=0, 
+    y=0, 
+    dx=100, 
+    dy=100, 
+    labels=data.tier,
+)
 ```
 
 The direct output is a list of dictionaries with each element defining a rectangular box. 
@@ -93,7 +99,7 @@ The direct output is a list of dictionaries with each element defining a rectang
 
 Similarly, to call the standard weight balanced treemap constructor:
 ```
-treemap.treemap(data.population, x=0, y=0, dx=100, dy=100, labels=data.tier)
+treemap.treemap(sizes=data.population, x=0, y=0, dx=100, dy=100, labels=data.tier)
 ```
 
 Output:
