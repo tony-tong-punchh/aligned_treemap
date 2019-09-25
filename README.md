@@ -7,7 +7,7 @@ version: 1.0.0
 
 #### Weight Balanced Treemap Layout
 
-by Tony Tong, tony.tong@punchh.com
+by Tony Tong, ttong@pro-ai.org
 
 Implements a regular one-level treemap generation algorithm by finding optimal
 split that minimizes the weight (size) imbalances between two sub-groups.
@@ -15,7 +15,7 @@ split that minimizes the weight (size) imbalances between two sub-groups.
 
 #### Aligned Treemap Layout
     
-by Tony Tong, tony.tong@punchh.com
+by Tony Tong, ttong@pro-ai.org
 
 Expands from the above weight balanced treemap by introducing x and y alignment
 values, such that the rectangles are also aligned in the x and y axis.
