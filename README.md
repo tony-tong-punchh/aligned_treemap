@@ -3,7 +3,7 @@ aligned_treemap
 
 Pure Python implementation of the squarify treemap layout algorithm.
 
-version: 1.0.0
+version: 1.0.5
 
 #### Weight Balanced Treemap Layout
 
