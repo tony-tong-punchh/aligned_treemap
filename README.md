@@ -202,7 +202,8 @@ To use the embedded plot function that uses `matplotlib` simply do the following
 ```
 fig, ax = plt.subplots(figsize=(18, 16))
 treemap.plot(data.population, kind='aligned_treemap', norm_x=100, norm_y=100, \
-    x_align=x_align, y_align=y_align, labels=data.tier, pad=False, alpha=0.7, ax=ax)
+    x_align=x_align, y_align=y_align, labels=data.tier, colors=data.color, \
+    pad=True, alpha=0.7, ax=ax)
 plt.axis('off')
 ```
 ![alt text](aligned_treemap.png "Sample Aligned Treemap with Customer RFM Segmentation")
