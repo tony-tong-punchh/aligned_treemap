@@ -36,12 +36,13 @@ import numpy as np
 
 # INTERNAL FUNCTIONS not meant to be used by the user
 def pad_rectangle(rect):
-    if rect["dx"] > 2:
-        rect["x"] += 1
-        rect["dx"] -= 2
-    if rect["dy"] > 2:
-        rect["y"] += 1
-        rect["dy"] -= 2
+    if rect["dx"] > 0.5:
+        rect["x"] += 0.25
+        rect["dx"] -= 0.5
+    if rect["dy"] > 0.5:
+        rect["y"] += 0.25
+        rect["dy"] -= 0.5
+    return rect
 
 
 def layoutrow(sizes, x, y, dx, dy, labels=None, values=None, colors=None):
