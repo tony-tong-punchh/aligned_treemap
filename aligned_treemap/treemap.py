@@ -44,7 +44,7 @@ def pad_rectangle(rect):
         rect["dy"] -= 2
 
 
-def layoutrow(sizes, x, y, dx, dy, labels=None, values=None):
+def layoutrow(sizes, x, y, dx, dy, labels=None, values=None, colors=None):
     # generate rects for each size in sizes
     # dx >= dy
     # they will fill up height dy, and width will be determined by their area
@@ -61,13 +61,14 @@ def layoutrow(sizes, x, y, dx, dy, labels=None, values=None):
                 "dy": size / width,
                 "label": labels[i] if labels else None,
                 "value": values[i] if values else None,
+                "color": list(colors[i]) if colors is not None else None,
             }
         )
         y += size / width
     return rects
 
 
-def layoutcol(sizes, x, y, dx, dy, labels=None, values=None):
+def layoutcol(sizes, x, y, dx, dy, labels=None, values=None, colors=None):
     # generate rects for each size in sizes
     # dx < dy
     # they will fill up width dx, and height will be determined by their area
@@ -84,15 +85,18 @@ def layoutcol(sizes, x, y, dx, dy, labels=None, values=None):
                 "dy": height,
                 "label": labels[i] if labels else None,
                 "value": values[i] if values else None,
+                "color": list(colors[i]) if colors is not None else None,
             }
         )
         x += size / height
     return rects
 
 
-def layout(sizes, x, y, dx, dy, labels=None, values=None):
+def layout(sizes, x, y, dx, dy, labels=None, values=None, colors=None):
     return (
-        layoutrow(sizes, x, y, dx, dy, labels, values) if dx >= dy else layoutcol(sizes, x, y, dx, dy, labels, values)
+        layoutrow(sizes, x, y, dx, dy, labels, values, colors)
+        if dx >= dy
+        else layoutcol(sizes, x, y, dx, dy, labels, values, colors)
     )
 
 
@@ -127,7 +131,7 @@ def worst_ratio(sizes, x, y, dx, dy):
 
 
 # Public API's
-def squarify(sizes, x, y, dx, dy, labels, values=None, normalized=False):
+def squarify(sizes, x, y, dx, dy, labels, values=None, colors=None, normalized=False):
     """Compute treemap rectangles.
 
     Given a set of values, computes a treemap layout in the specified geometry
@@ -147,6 +151,8 @@ def squarify(sizes, x, y, dx, dy, labels, values=None, normalized=False):
         Text labels corresponding to sizes
     values: list-like of values
         Numerical values corresponding to sizes
+    colors: list-like tuples of numeric values
+        Tuple representing colors
     normalized: True or False (default)
         True if `dx * dy == sum(sizes)`
 
@@ -164,12 +170,14 @@ def squarify(sizes, x, y, dx, dy, labels, values=None, normalized=False):
 
     labels = list(labels)
     values = list(values)
+    if colors is not None:
+        colors = np.array(list(colors))
 
     if len(sizes) == 0:
         return []
 
     if len(sizes) == 1:
-        return layout(sizes, x, y, dx, dy, labels, values)
+        return layout(sizes, x, y, dx, dy, labels, values, colors)
 
     # figure out where 'split' should be
     i = 1
@@ -177,23 +185,24 @@ def squarify(sizes, x, y, dx, dy, labels, values=None, normalized=False):
         i += 1
     current, current_labels, current_values = sizes[:i], labels[:i], values[:i]
     remaining, remaining_labels, remaining_values = sizes[i:], labels[i:], values[i:]
+    if colors is not None:
+        current_colors, remaining_colors = colors[:i], colors[i:]
+    else:
+        current_colors, remaining_colors = None, None
 
     (leftover_x, leftover_y, leftover_dx, leftover_dy) = leftover(current, x, y, dx, dy)
-    return layout(current, x, y, dx, dy, current_labels, current_values) + squarify(
-        remaining, leftover_x, leftover_y, leftover_dx, leftover_dy, remaining_labels, remaining_values, True
+
+    return layout(current, x, y, dx, dy, current_labels, current_values, current_colors) + squarify(
+        remaining,
+        leftover_x,
+        leftover_y,
+        leftover_dx,
+        leftover_dy,
+        remaining_labels,
+        remaining_values,
+        remaining_colors,
+        True,
     )
-
-
-def padded_squarify(sizes, x, y, dx, dy, labels, values):
-    """Compute padded treemap rectangles.
-
-    See `squarify` docstring for details. The only difference is that the
-    returned rectangles have been "padded" to allow for a visible border.
-    """
-    rects = squarify(sizes, x, y, dx, dy, labels, values)
-    for rect in rects:
-        pad_rectangle(rect)
-    return rects
 
 
 def normalize_sizes(sizes, dx, dy):
@@ -263,7 +272,7 @@ def split(head, x, y, dx, dy):
         return (x, y, dx, height), (x, y + height, dx, dy - height)
 
 
-def treemap(sizes, x, y, dx, dy, labels, values=None, normalized=False):
+def treemap(sizes, x, y, dx, dy, labels, values=None, colors=None, normalized=False):
     """Compute treemap rectangles with min weight imbalances for each split.
 
     The difference to squarify algorithm is that this treemap generator does
@@ -281,6 +290,8 @@ def treemap(sizes, x, y, dx, dy, labels, values=None, normalized=False):
         Text labels corresponding to sizes
     values: list-like of values
         Numerical values corresponding to sizes
+    colors: list-like tuples of numeric values
+        Tuple representing colors
     normalized: True or False (default)
         True if sizes already normalized such as sum(sizes) == dx * dy
 
@@ -297,24 +308,30 @@ def treemap(sizes, x, y, dx, dy, labels, values=None, normalized=False):
         sizes = np.array(normalize_sizes(sizes, dx, dy))
     labels = list(labels)
     values = list(values)
+    if colors is not None:
+        colors = np.array(list(colors))
 
     if len(sizes) == 0:
         return []
 
     if len(sizes) == 1:
-        return layout(sizes, x, y, dx, dy, labels, values)
+        return layout(sizes, x, y, dx, dy, labels, values, colors)
 
     i = argmin_weight_imbalance(sizes)
     head, head_labels, head_values = sizes[:i], labels[:i], values[:i]
     tail, tail_labels, tail_values = sizes[i:], labels[i:], values[i:]
+    if colors is not None:
+        head_colors, tail_colors = colors[:i], colors[i:]
+    else:
+        head_colors, tail_colors = None, None
 
     head_rect, tail_rect = split(head, x, y, dx, dy)
-    return treemap(head, *head_rect, head_labels, head_values, True) + treemap(
-        tail, *tail_rect, tail_labels, tail_values, True
+    return treemap(head, *head_rect, head_labels, head_values, head_colors, True) + treemap(
+        tail, *tail_rect, tail_labels, tail_values, tail_colors, True
     )
 
 
-def aligned_treemap(sizes, x_align, y_align, x, y, dx, dy, labels, values=None, normalized=False):
+def aligned_treemap(sizes, x_align, y_align, x, y, dx, dy, labels, values=None, colors=None, normalized=False):
     """Compute treemap rectangles while aligning to x and y axes values.
 
     The key difference of aligned_treemap from treemap is that additional
@@ -335,6 +352,8 @@ def aligned_treemap(sizes, x_align, y_align, x, y, dx, dy, labels, values=None, 
         Text labels corresponding to sizes
     values: list-like of values
         Numerical values corresponding to sizes
+    colors: list-like tuples of numeric values
+        Tuple representing colors
     normalized: True or False (default)
         True if sizes already normalized such as sum(sizes) == dx * dy
 
@@ -353,12 +372,14 @@ def aligned_treemap(sizes, x_align, y_align, x, y, dx, dy, labels, values=None, 
     y_align = np.array(list(map(float, y_align)))
     labels = np.array(list(labels))
     values = np.array(list(values))
+    if colors is not None:
+        colors = np.array(list(colors))
 
     if len(sizes) == 0:
         return []
 
     if len(sizes) == 1:
-        return layout(sizes, x, y, dx, dy, labels, values)
+        return layout(sizes, x, y, dx, dy, labels, values, colors)
 
     idx = np.argsort(x_align) if dx >= dy else np.argsort(y_align)
     sizes = sizes[idx]
@@ -366,6 +387,8 @@ def aligned_treemap(sizes, x_align, y_align, x, y, dx, dy, labels, values=None, 
     y_align = y_align[idx]
     labels = labels[idx]
     values = values[idx]
+    if colors is not None:
+        colors = colors[idx]
 
     i = argmin_weight_imbalance(sizes)
     head, head_x_align, head_y_align, head_labels, head_values = (
@@ -382,12 +405,16 @@ def aligned_treemap(sizes, x_align, y_align, x, y, dx, dy, labels, values=None, 
         labels[i:],
         values[i:],
     )
+    if colors is not None:
+        head_colors, tail_colors = colors[:i], colors[i:]
+    else:
+        head_colors, tail_colors = None, None
 
     head_rect, tail_rect = split(head, x, y, dx, dy)
 
     return aligned_treemap(
-        head, head_x_align, head_y_align, *head_rect, head_labels, head_values, True
-    ) + aligned_treemap(tail, tail_x_align, tail_y_align, *tail_rect, tail_labels, tail_values, True)
+        head, head_x_align, head_y_align, *head_rect, head_labels, head_values, head_colors, True
+    ) + aligned_treemap(tail, tail_x_align, tail_y_align, *tail_rect, tail_labels, tail_values, tail_colors, True)
 
 
 def plot(
@@ -397,7 +424,7 @@ def plot(
     norm_y=100,
     x_align=None,
     y_align=None,
-    color=None,
+    colors=None,
     labels=None,
     values=None,
     ax=None,
@@ -447,12 +474,12 @@ def plot(
     if ax is None:
         ax = plt.gca()
 
-    if color is None:
+    if colors is None:
         import matplotlib.cm
         import random
 
         cmap = matplotlib.cm.get_cmap()
-        color = [cmap(random.random()) for i in range(len(sizes))]
+        colors = [cmap(random.random()) for i in range(len(sizes))]
 
     if bar_kwargs is None:
         bar_kwargs = {}
@@ -467,17 +494,19 @@ def plot(
     normed = normalize_sizes(sizes, norm_x, norm_y)
 
     if kind == "squarify":
-        if pad:
-            rects = padded_squarify(normed, 0, 0, norm_x, norm_y, labels, values)
-        else:
-            rects = squarify(normed, 0, 0, norm_x, norm_y, labels, values)
+        rects = squarify(normed, 0, 0, norm_x, norm_y, labels, values, colors)
     elif kind == "treemap":
-        rects = treemap(normed, 0, 0, norm_x, norm_y, labels, values)
+        rects = treemap(normed, 0, 0, norm_x, norm_y, labels, values, colors)
     elif kind == "aligned_treemap":
         assert (
             x_align is not None and y_align is not None
         ), "x_align and y_align need to be provided for aligned_treemap"
-        rects = aligned_treemap(normed, x_align, y_align, 0, 0, norm_x, norm_y, labels, values)
+        rects = aligned_treemap(normed, x_align, y_align, 0, 0, norm_x, norm_y, labels, values, colors)
+    else:
+        assert False, "Unrecognized `kind` parameter"
+
+    if pad:
+        rects = [pad_rectangle(rect) for rect in rects]
 
     x = [rect["x"] for rect in rects]
     y = [rect["y"] for rect in rects]
@@ -485,8 +514,9 @@ def plot(
     dy = [rect["dy"] for rect in rects]
     labels = [rect["label"] for rect in rects]
     values = [rect["value"] for rect in rects]
+    colors = [rect["color"] for rect in rects]
 
-    ax.bar(x, dy, width=dx, bottom=y, color=color, label=labels, align="edge", **bar_kwargs)
+    ax.bar(x, dy, width=dx, bottom=y, color=colors, label=labels, align="edge", **bar_kwargs)
 
     if not values is None:
         va = "center" if labels is None else "top"
