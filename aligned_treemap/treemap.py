@@ -124,11 +124,20 @@ def leftovercol(sizes, x, y, dx, dy):
 
 
 def leftover(sizes, x, y, dx, dy):
-    return leftoverrow(sizes, x, y, dx, dy) if dx >= dy else leftovercol(sizes, x, y, dx, dy)
+    return (
+        leftoverrow(sizes, x, y, dx, dy)
+        if dx >= dy
+        else leftovercol(sizes, x, y, dx, dy)
+    )
 
 
 def worst_ratio(sizes, x, y, dx, dy):
-    return max([max(rect["dx"] / rect["dy"], rect["dy"] / rect["dx"]) for rect in layout(sizes, x, y, dx, dy)])
+    return max(
+        [
+            max(rect["dx"] / rect["dy"], rect["dy"] / rect["dx"])
+            for rect in layout(sizes, x, y, dx, dy)
+        ]
+    )
 
 
 # Public API's
@@ -182,7 +191,9 @@ def squarify(sizes, x, y, dx, dy, labels, values=None, colors=None, normalized=F
 
     # figure out where 'split' should be
     i = 1
-    while i < len(sizes) and worst_ratio(sizes[:i], x, y, dx, dy) >= worst_ratio(sizes[: (i + 1)], x, y, dx, dy):
+    while i < len(sizes) and worst_ratio(sizes[:i], x, y, dx, dy) >= worst_ratio(
+        sizes[: (i + 1)], x, y, dx, dy
+    ):
         i += 1
     current, current_labels, current_values = sizes[:i], labels[:i], values[:i]
     remaining, remaining_labels, remaining_values = sizes[i:], labels[i:], values[i:]
@@ -193,7 +204,9 @@ def squarify(sizes, x, y, dx, dy, labels, values=None, colors=None, normalized=F
 
     (leftover_x, leftover_y, leftover_dx, leftover_dy) = leftover(current, x, y, dx, dy)
 
-    return layout(current, x, y, dx, dy, current_labels, current_values, current_colors) + squarify(
+    return layout(
+        current, x, y, dx, dy, current_labels, current_values, current_colors
+    ) + squarify(
         remaining,
         leftover_x,
         leftover_y,
@@ -238,7 +251,9 @@ def weight_imbalance(sizes, i):
     elif 0 < i < len(sizes) - 1:
         return abs(sum(sizes[:i]) - sum(sizes[i:]))
     else:
-        raise IndexError(f"Split index {i} out of range for sizes with len of {len(sizes)}")
+        raise IndexError(
+            f"Split index {i} out of range for sizes with len of {len(sizes)}"
+        )
 
 
 def argmin_weight_imbalance(sizes):
@@ -327,12 +342,24 @@ def treemap(sizes, x, y, dx, dy, labels, values=None, colors=None, normalized=Fa
         head_colors, tail_colors = None, None
 
     head_rect, tail_rect = split(head, x, y, dx, dy)
-    return treemap(head, *head_rect, head_labels, head_values, head_colors, True) + treemap(
-        tail, *tail_rect, tail_labels, tail_values, tail_colors, True
-    )
+    return treemap(
+        head, *head_rect, head_labels, head_values, head_colors, True
+    ) + treemap(tail, *tail_rect, tail_labels, tail_values, tail_colors, True)
 
 
-def aligned_treemap(sizes, x_align, y_align, x, y, dx, dy, labels, values=None, colors=None, normalized=False):
+def aligned_treemap(
+    sizes,
+    x_align,
+    y_align,
+    x,
+    y,
+    dx,
+    dy,
+    labels,
+    values=None,
+    colors=None,
+    normalized=False,
+):
     """Compute treemap rectangles while aligning to x and y axes values.
 
     The key difference of aligned_treemap from treemap is that additional
@@ -414,8 +441,24 @@ def aligned_treemap(sizes, x_align, y_align, x, y, dx, dy, labels, values=None, 
     head_rect, tail_rect = split(head, x, y, dx, dy)
 
     return aligned_treemap(
-        head, head_x_align, head_y_align, *head_rect, head_labels, head_values, head_colors, True
-    ) + aligned_treemap(tail, tail_x_align, tail_y_align, *tail_rect, tail_labels, tail_values, tail_colors, True)
+        head,
+        head_x_align,
+        head_y_align,
+        *head_rect,
+        head_labels,
+        head_values,
+        head_colors,
+        True,
+    ) + aligned_treemap(
+        tail,
+        tail_x_align,
+        tail_y_align,
+        *tail_rect,
+        tail_labels,
+        tail_values,
+        tail_colors,
+        True,
+    )
 
 
 def plot(
@@ -502,7 +545,9 @@ def plot(
         assert (
             x_align is not None and y_align is not None
         ), "x_align and y_align need to be provided for aligned_treemap"
-        rects = aligned_treemap(normed, x_align, y_align, 0, 0, norm_x, norm_y, labels, values, colors)
+        rects = aligned_treemap(
+            normed, x_align, y_align, 0, 0, norm_x, norm_y, labels, values, colors
+        )
     else:
         assert False, "Unrecognized `kind` parameter"
 
@@ -517,7 +562,16 @@ def plot(
     values = [rect["value"] for rect in rects]
     colors = [rect["color"] for rect in rects]
 
-    ax.bar(x, dy, width=dx, bottom=y, color=colors, label=labels, align="edge", **bar_kwargs)
+    ax.bar(
+        x,
+        dy,
+        width=dx,
+        bottom=y,
+        color=colors,
+        label=labels,
+        align="edge",
+        **bar_kwargs,
+    )
 
     if not values is None:
         va = "center" if labels is None else "top"

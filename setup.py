@@ -17,6 +17,6 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
     ],
-    requires=['numpy'],
+    requires=["numpy", "matplotlib"],
     url="https://github.com/tony-tong-punchh/aligned_treemap",
 )
