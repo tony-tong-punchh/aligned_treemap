@@ -1,0 +1,2 @@
+aligned_treemap==1.0.5
+numpy==1.16.2
