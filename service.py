@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from aligned_treemap import treemap as tp
+import json
 import numpy as np
 
 
+# Color map
+# matplotlib.cm.get_cmap('GnBu')
 c = [
     (0.9686274509803922, 0.9882352941176471, 0.9411764705882353, 1.0),
     (0.9657977700884275, 0.987128027681661, 0.9385928489042675, 1.0),
@@ -264,27 +267,24 @@ c = [
 
 
 def handler(event, context):
-    tier = event.get("tier")
-    population = event.get("population")
-    recency = event.get("recency")
-    frequency = event.get("frequency")
-    monetary = event.get("monetary")
-    loyalty_age = event.get("loyalty_age")
+    names = event.get("names")
+    sizes = event.get("sizes")
+    x_align = event.get("x")
+    y_align = event.get("y")
+    colors = event.get("colors")  # input should be normalized to [0, 1]
+    values = event.get("values")
 
-    keys = [k for k in tier]
+    keys = [k for k in names]
     keys.sort()
 
-    tier = [tier[k] for k in keys]
-    population = [population[k] for k in keys]
-    recency = [recency[k] for k in keys]
-    frequency = [frequency[k] for k in keys]
-    monetary = [monetary[k] for k in keys]
-    loyalty_age = [loyalty_age[k] for k in keys]
+    names = [names[k] for k in keys]
+    sizes = [sizes[k] for k in keys]
+    x_align = [x_align[k] for k in keys]
+    y_align = [y_align[k] for k in keys]
+    colors = [colors[k] for k in keys]
+    values = [values[k] for k in keys]
 
-    sizes = population
-    x_align = recency
-    y_align = monetary
-    color = np.array(c)[list(map(int, monetary * 255))]
+    colors = np.array(c)[list(map(int, colors * 255))]
 
     output = tp.aligned_treemap(
         sizes,
@@ -294,7 +294,7 @@ def handler(event, context):
         y=0,
         dx=100,
         dy=100,
-        labels=tier,
-        colors=color,
+        labels=names,
+        colors=colors,
     )
-    return output
+    return json.dumps(output)
