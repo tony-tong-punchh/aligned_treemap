@@ -361,11 +361,15 @@ default_event = {
 
 def handler(event=None, context=None):
     if not event:
-        return json.dumps(None)
+        return json.dumps("Null input")
     if event.get("test"):
         event = default_event
 
     names = event.get("names")
+    if not names:
+        return json.dumps(
+            "Input does not contain valid info. Fields required: sizes, x_align, y_align, colors, values (optional)"
+        )
     sizes = event.get("sizes")
     x_align = event.get("x")
     y_align = event.get("y")
