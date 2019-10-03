@@ -360,7 +360,7 @@ default_event = {
 
 
 def handler(event=None, context=None):
-    if event is None:
+    if not event:
         return json.dumps(None)
     if event.get("test"):
         event = default_event
