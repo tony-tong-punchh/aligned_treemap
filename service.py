@@ -366,7 +366,9 @@ def handler(event=None, context=None):
     if event.get("queryStringParameters"):
         event = event.get("queryStringParameters")
 
-    if event.get("test"):
+    if event.get("test") and isinstance(event.get("test"), bool):
+        event = default_event
+    elif event.get("test") and str(event.get("test")).lower() == "true":
         event = default_event
 
     names = event.get("names")
@@ -381,7 +383,6 @@ def handler(event=None, context=None):
     x_align = event.get("x")
     y_align = event.get("y")
     colors = event.get("colors")  # input should be normalized to [0, 1]
-    values = event.get("values")
 
     keys = [k for k in names]
     keys.sort()
@@ -391,7 +392,6 @@ def handler(event=None, context=None):
     x_align = [x_align[k] for k in keys]
     y_align = [y_align[k] for k in keys]
     colors = [colors[k] for k in keys]
-    values = [values[k] for k in keys]
 
     colors = np.array(c)[list(map(int, colors * 255))]
 
