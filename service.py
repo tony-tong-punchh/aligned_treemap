@@ -3,6 +3,7 @@ from aligned_treemap import treemap as tp
 import json
 import numpy as np
 
+__version__ = "1.0"
 
 # Color map
 # matplotlib.cm.get_cmap('GnBu')
@@ -363,47 +364,71 @@ def handler(event=None, context=None):
     if not event:
         return {"statusCode": 204, "body": json.dumps("Null input")}
 
+    data = None
+    if event.get("body"):
+        data = event.get("body")
+
     if event.get("queryStringParameters"):
-        event = event.get("queryStringParameters")
+        params = event.get("queryStringParameters")
+    else:
+        params = {}
 
-    if event.get("test") and isinstance(event.get("test"), bool):
-        event = default_event
-    elif event.get("test") and str(event.get("test")).lower() == "true":
-        event = default_event
+    if params.get("test") and isinstance(params.get("test"), bool):
+        data = default_event
+    elif params.get("test") and str(params.get("test")).lower() == "true":
+        data = default_event
 
-    names = event.get("names")
-    if not names:
+    if not data:
+        data = event
+
+    names = data.get("names")
+    sizes = data.get("sizes")
+    if not names or not sizes:
         return {
             "statusCode": 206,
             "body": json.dumps(
-                "Input does not contain valid info. Fields required: sizes, x_align, y_align, colors, values (optional)"
+                "Input does not contain valid info. Fields required: "
+                "names, sizes, x_align (optional), y_align (optional), colors (optional)"
             ),
         }
-    sizes = event.get("sizes")
-    x_align = event.get("x")
-    y_align = event.get("y")
-    colors = event.get("colors")  # input should be normalized to [0, 1]
+    x_align = data.get("x")
+    y_align = data.get("y")
+    colors = data.get("colors")  # input should be normalized to [0, 1]
+    if x_align and y_align:
+        kind = "aligned_treemap"
+    else:
+        kind = "treemap"
 
     keys = [k for k in names]
     keys.sort()
-
     names = [names[k] for k in keys]
     sizes = [sizes[k] for k in keys]
-    x_align = [x_align[k] for k in keys]
-    y_align = [y_align[k] for k in keys]
-    colors = [colors[k] for k in keys]
+    if kind == "aligned_treemap":
+        x_align = [x_align[k] for k in keys]
+        y_align = [y_align[k] for k in keys]
+    if colors:
+        colors = [colors[k] for k in keys]
+        colors = np.array(c)[list(map(int, colors * 255))]
 
-    colors = np.array(c)[list(map(int, colors * 255))]
+    if kind == "aligned_treemap":
+        output = tp.aligned_treemap(
+            sizes,
+            x_align=x_align,
+            y_align=y_align,
+            x=0,
+            y=0,
+            dx=100,
+            dy=100,
+            labels=names,
+            colors=colors,
+        )
+    else:
+        output = tp.treemap(
+            sizes, x=0, y=0, dx=100, dy=100, labels=names, colors=colors
+        )
 
-    output = tp.aligned_treemap(
-        sizes,
-        x_align=x_align,
-        y_align=y_align,
-        x=0,
-        y=0,
-        dx=100,
-        dy=100,
-        labels=names,
-        colors=colors,
-    )
-    return {"statusCode": 200, "body": json.dumps(output)}
+    return {
+        "statusCode": 200,
+        "headers": {"lambda-version": f"{__version__}"},
+        "body": json.dumps(output),
+    }

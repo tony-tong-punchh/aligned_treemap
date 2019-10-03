@@ -45,8 +45,14 @@
     "apiId": "wt6mne2s9k"
   },
   "resource": "/{proxy+}",
-  "httpMethod": "GET",
+  "httpMethod": "POST",
   "queryStringParameters": {
+    "test": "false"
+  },
+  "stageVariables": {
+    "stageVarName": "stageVarValue"
+  },
+  "body": {
     "names": {
       "0": "frequent",
       "1": "champion",
@@ -137,8 +143,5 @@
       "11": 0.0,
       "12": 0.625
     }
-  },
-  "stageVariables": {
-    "stageVarName": "stageVarValue"
-  }
+}
 }
