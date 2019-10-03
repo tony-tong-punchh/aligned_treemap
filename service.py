@@ -361,15 +361,19 @@ default_event = {
 
 def handler(event=None, context=None):
     if not event:
-        return json.dumps("Null input")
+        return {"statusCode": 204, "body": json.dumps("Null input")}
+
     if event.get("test"):
         event = default_event
 
     names = event.get("names")
     if not names:
-        return json.dumps(
-            "Input does not contain valid info. Fields required: sizes, x_align, y_align, colors, values (optional)"
-        )
+        return {
+            "statusCode": 204,
+            "body": json.dumps(
+                "Input does not contain valid info. Fields required: sizes, x_align, y_align, colors, values (optional)"
+            ),
+        }
     sizes = event.get("sizes")
     x_align = event.get("x")
     y_align = event.get("y")
@@ -399,4 +403,4 @@ def handler(event=None, context=None):
         labels=names,
         colors=colors,
     )
-    return json.dumps(output)
+    return {"statusCode": 200, "body": json.dumps(output)}
