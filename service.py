@@ -366,7 +366,7 @@ def handler(event=None, context=None):
 
     data = None
     if event.get("body"):
-        data = event.get("body")
+        data = json.loads(event.get("body"))
 
     if event.get("queryStringParameters"):
         params = event.get("queryStringParameters")
