@@ -363,13 +363,16 @@ def handler(event=None, context=None):
     if not event:
         return {"statusCode": 204, "body": json.dumps("Null input")}
 
+    if event.get("queryStringParameters"):
+        event = event.get("queryStringParameters")
+
     if event.get("test"):
         event = default_event
 
     names = event.get("names")
     if not names:
         return {
-            "statusCode": 204,
+            "statusCode": 206,
             "body": json.dumps(
                 "Input does not contain valid info. Fields required: sizes, x_align, y_align, colors, values (optional)"
             ),
