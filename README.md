@@ -1,7 +1,10 @@
 aligned_treemap
 ========
 
-Pure Python implementation of the squarify treemap layout algorithm.
+Python implementation of the one-layer treemap layout algorithm.  Expanded the original version by adding x and y alignment axes, so the tiled treemap can represent 4-D information. 
+
+[Update]
+Also added an AWS Lambda deployment package. 
 
 version: 1.0.5
 
