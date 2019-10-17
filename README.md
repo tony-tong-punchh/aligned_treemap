@@ -3,6 +3,8 @@ aligned_treemap
 
 Python implementation of the one-layer treemap layout algorithm.  Expanded the original version by adding x and y alignment axes, so the tiled treemap can represent 4-D information. 
 
+![alt text](aligned_treemap.png "Sample Aligned Treemap with Customer RFM Segmentation")
+
 [Update]
 Also added an AWS Lambda deployment package. 
 
